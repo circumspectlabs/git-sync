@@ -1,0 +1,40 @@
+FROM golang:1.26-alpine AS builder
+
+RUN apk add --no-cache                          \
+        git                                     \
+        binutils                                \
+        ca-certificates
+
+ARG GIT_SYNC_VERSION=4.6.0
+RUN cd /tmp                                  && \
+    git clone --depth 1 --branch v${GIT_SYNC_VERSION} https://github.com/kubernetes/git-sync && \
+    cd git-sync                              && \
+    go build -ldflags "-s -w -X '$(cat go.mod | head -1 | awk '{print $2}')/pkg/version.VERSION=${GIT_SYNC_VERSION}'" . && \
+    strip -g -S -d --strip-debug ./git-sync  && \
+    mv ./git-sync /usr/local/bin/git-sync    && \
+    chmod 0755 /usr/local/bin/git-sync       && \
+    /usr/local/bin/git-sync --version        && \
+    /usr/local/bin/git-sync --help
+
+ARG GOSU_VERSION=1.19
+RUN cd /tmp                                  && \
+    git clone --depth 1 --branch ${GOSU_VERSION} https://github.com/tianon/gosu && \
+    cd gosu                                  && \
+    go build -ldflags "-s -w" .              && \
+    strip -g -S -d --strip-debug ./gosu      && \
+    mv ./gosu /usr/local/bin/gosu            && \
+    chmod 0755 /usr/local/bin/gosu           && \
+    /usr/local/bin/gosu --version            && \
+    /usr/local/bin/gosu --help
+
+FROM busybox:1.37.0-musl AS base
+
+COPY --from=builder --chmod=0755 /usr/local/bin/git-sync /usr/local/bin/git-sync
+COPY --link --from=builder --chmod=0755 /usr/local/bin/gosu /usr/local/bin/gosu
+COPY --link --from=builder /usr/share/ca-certificates /usr/share/ca-certificates
+COPY --link --from=builder /etc/ssl/cert.pem /etc/ssl/cert.pem
+COPY --link --from=builder /etc/ssl/certs /etc/ssl/certs
+
+USER 65534:65534
+ENTRYPOINT ["git-sync"]
+CMD ["--help"]
