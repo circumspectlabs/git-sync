@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6 .
+
 ###
 ### Very basic test, mainly to identify linking issues and
 ### corrupted dependencies
@@ -21,7 +23,7 @@ docker run --rm --entrypoint "" "${DOCKER_IMAGE}" gosu --help
 docker run --rm --entrypoint "" "${DOCKER_IMAGE}" git-sync --version
 docker run --rm --entrypoint "" "${DOCKER_IMAGE}" git-sync --help
 
-# Check enptrypoint
+# Check entrypoint
 docker run --rm "${DOCKER_IMAGE}" --version
 
 # Try to pull something with git-sync
