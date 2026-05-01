@@ -5,8 +5,7 @@ FROM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS builder
 
 RUN apk add --no-cache                          \
         git                                     \
-        binutils                                \
-        ca-certificates
+        binutils
 
 ARG GIT_SYNC_VERSION=4.6.0
 RUN cd /tmp                                  && \
@@ -30,13 +29,17 @@ RUN cd /tmp                                  && \
     /usr/local/bin/gosu --version            && \
     /usr/local/bin/gosu --help
 
-FROM busybox:1.37.0-musl AS base
+FROM alpine:${ALPINE_VERSION}
+
+RUN apk add --no-cache                          \
+        bash                                    \
+        ca-certificates                         \
+        curl                                    \
+        git                                     \
+        git-lfs
 
 COPY --from=builder --chmod=0755 /usr/local/bin/git-sync /usr/local/bin/git-sync
 COPY --link --from=builder --chmod=0755 /usr/local/bin/gosu /usr/local/bin/gosu
-COPY --link --from=builder /usr/share/ca-certificates /usr/share/ca-certificates
-COPY --link --from=builder /etc/ssl/cert.pem /etc/ssl/cert.pem
-COPY --link --from=builder /etc/ssl/certs /etc/ssl/certs
 
 USER 65534:65534
 ENTRYPOINT ["git-sync"]
