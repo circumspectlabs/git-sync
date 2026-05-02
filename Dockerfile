@@ -5,7 +5,8 @@ FROM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS builder
 
 RUN apk add --no-cache                          \
         git                                     \
-        binutils
+        binutils                                \
+        openssh-client
 
 ARG GIT_SYNC_VERSION=4.6.0
 RUN cd /tmp                                  && \
@@ -36,11 +37,16 @@ RUN apk add --no-cache                          \
         ca-certificates                         \
         curl                                    \
         git                                     \
-        git-lfs
+        git-lfs                                 \
+        openssh-client                       && \
+    mkdir /.ssh /data                        && \
+    chmod 0755 /.ssh /data                   && \
+    chown 65534:65534 /.ssh /data
 
-COPY --from=builder --chmod=0755 /usr/local/bin/git-sync /usr/local/bin/git-sync
-COPY --link --from=builder --chmod=0755 /usr/local/bin/gosu /usr/local/bin/gosu
+COPY --from=builder --chmod=0755 --chown=root:root /usr/local/bin/git-sync /usr/local/bin/git-sync
+COPY --link --from=builder --chmod=0755 --chown=root:root /usr/local/bin/gosu /usr/local/bin/gosu
+COPY --link --chown=root:root --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint.sh
 
 USER 65534:65534
-ENTRYPOINT ["git-sync"]
+ENTRYPOINT ["entrypoint.sh", "git-sync"]
 CMD ["--help"]
