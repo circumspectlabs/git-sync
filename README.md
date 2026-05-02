@@ -2,11 +2,12 @@
 
 Just a docker image with git-sync, as minimal as possible. Just with
 minimal alpine and a script to fix general permission issues without
-sacrificing security. othing fancy.
+sacrificing security. Nothing fancy.
 
 ## Features
 
-- `ca-certificates` to support https repos
+- `ca-certificates` to support `https` repos
+- `openssh-client` to support `git` repos
 - `git-lfs`
 - `curl` and `bash` for git hooks and extras
 
