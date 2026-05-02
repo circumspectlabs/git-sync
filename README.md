@@ -4,6 +4,9 @@ Just a docker image with git-sync, as minimal as possible. Just with
 minimal alpine and a script to fix general permission issues without
 sacrificing security. Nothing fancy.
 
+![Last Commit](https://img.shields.io/github/last-commit/circumspectlabs/git-sync)
+![License](https://img.shields.io/github/license/circumspectlabs/git-sync)
+
 ## Features
 
 - `ca-certificates` to support `https` repos
