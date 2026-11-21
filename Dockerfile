@@ -1,5 +1,5 @@
-ARG GO_VERSION=1.26.2
-ARG ALPINE_VERSION=3.23
+ARG GO_VERSION=1.27.4
+ARG ALPINE_VERSION=3.24
 
 FROM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS builder
 
@@ -8,7 +8,7 @@ RUN apk add --no-cache                          \
         binutils                                \
         openssh-client
 
-ARG GIT_SYNC_VERSION=4.6.0
+ARG GIT_SYNC_VERSION=4.8.0
 RUN cd /tmp                                  && \
     git clone --depth 1 --branch v${GIT_SYNC_VERSION} https://github.com/kubernetes/git-sync && \
     cd git-sync                              && \
@@ -19,7 +19,7 @@ RUN cd /tmp                                  && \
     /usr/local/bin/git-sync --version        && \
     /usr/local/bin/git-sync --help
 
-ARG GOSU_VERSION=1.19
+ARG GOSU_VERSION=1.20
 RUN cd /tmp                                  && \
     git clone --depth 1 --branch ${GOSU_VERSION} https://github.com/tianon/gosu && \
     cd gosu                                  && \
